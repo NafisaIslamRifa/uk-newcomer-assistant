@@ -1,0 +1,72 @@
+{
+  "run_at": "2026-10-03T18:11:21.096247+00:00",
+  "k": 5,
+  "n_questions": 9,
+  "recall@5": 1.0,
+  "mrr": 1.0,
+  "rows": [
+    {
+      "id": "q01",
+      "question": "How do I prove my right to work to an employer?",
+      "expected": "prove-right-to-work",
+      "rank": 1,
+      "top1": "prove-right-to-work"
+    },
+    {
+      "id": "q02",
+      "question": "What is a share code and how do I get one?",
+      "expected": "evisa",
+      "rank": 1,
+      "top1": "evisa"
+    },
+    {
+      "id": "q03",
+      "question": "What is an eVisa?",
+      "expected": "evisa",
+      "rank": 1,
+      "top1": "evisa"
+    },
+    {
+      "id": "q04",
+      "question": "How do I apply for a National Insurance number?",
+      "expected": "apply-national-insurance-number",
+      "rank": 1,
+      "top1": "apply-national-insurance-number"
+    },
+    {
+      "id": "q05",
+      "question": "How do I prove my right to rent to a landlord in England?",
+      "expected": "prove-right-to-rent",
+      "rank": 1,
+      "top1": "prove-right-to-rent"
+    },
+    {
+      "id": "q06",
+      "question": "Does my landlord have to protect my tenancy deposit?",
+      "expected": "tenancy-deposit-protection",
+      "rank": 1,
+      "top1": "tenancy-deposit-protection"
+    },
+    {
+      "id": "q07",
+      "question": "Who has to pay council tax?",
+      "expected": "council-tax",
+      "rank": 1,
+      "top1": "council-tax"
+    },
+    {
+      "id": "q08",
+      "question": "Do full-time students pay council tax?",
+      "expected": "council-tax",
+      "rank": 1,
+      "top1": "council-tax"
+    },
+    {
+      "id": "q09",
+      "question": "How do I register with a GP?",
+      "expected": "guidance__nhs-entitlements-migrant-health-guide",
+      "rank": 1,
+      "top1": "guidance__nhs-entitlements-migrant-health-guide"
+    }
+  ]
+}

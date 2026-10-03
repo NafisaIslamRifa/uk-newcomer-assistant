@@ -5,7 +5,7 @@ python-dotenv>=1.0
 
 # Vector DB + lightweight embeddings (fastembed uses ONNX, no PyTorch,
 # so it's a few hundred MB instead of several GB)
-qdrant-client[fastembed]>=1.9
+qdrant-client[fastembed]>=1.12
 
 # Day 3 onwards
 streamlit>=1.36
