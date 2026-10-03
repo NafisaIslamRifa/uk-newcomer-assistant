@@ -9,5 +9,5 @@ qdrant-client[fastembed]>=1.12
 
 # Day 3 onwards
 streamlit>=1.36
-mcp>=1.2
+mcp>=1.9,<2   # v2 renamed FastMCP; pin v1 for now
 pytest>=8.0

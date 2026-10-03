@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, models
 
 from rag.config import COLLECTION, QDRANT_URL
 from rag.embeddings import embed_query
@@ -23,13 +23,22 @@ def _get_client() -> QdrantClient:
     return _client
 
 
-def retrieve(question: str, k: int = 5, client: QdrantClient | None = None,
-             embed=embed_query) -> list[dict]:
-    """Return the top-k chunks with their score and source metadata."""
+def retrieve(question: str, k: int = 5, category: str | None = None,
+             client: QdrantClient | None = None, embed=embed_query) -> list[dict]:
+    """Return the top-k chunks with their score and source metadata.
+
+    category: optional filter, e.g. "council_tax", to search one topic only.
+    """
     client = client or _get_client()
+    query_filter = None
+    if category:
+        query_filter = models.Filter(must=[
+            models.FieldCondition(key="category", match=models.MatchValue(value=category))
+        ])
     result = client.query_points(
         collection_name=COLLECTION,
         query=embed(question),
+        query_filter=query_filter,
         limit=k,
         with_payload=True,
     )
