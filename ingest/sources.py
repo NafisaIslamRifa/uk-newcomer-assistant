@@ -11,7 +11,6 @@ site, fix the path, and re-run.
 SOURCES = [
     # --- Right to work & immigration status ---
     {"path": "prove-right-to-work", "category": "right_to_work"},
-    {"path": "view-prove-immigration-status", "category": "right_to_work"},
     {"path": "evisa", "category": "right_to_work"},
     {"path": "student-visa", "category": "right_to_work"},
     {"path": "skilled-worker-visa", "category": "right_to_work"},
@@ -20,7 +19,7 @@ SOURCES = [
     # --- Right to rent & renting ---
     {"path": "prove-right-to-rent", "category": "renting"},
     {"path": "private-renting", "category": "renting"},
-    {"path": "private-renting-tenancy-agreements", "category": "renting"},
+    {"path": "assured-periodic-tenancies-tenants", "category": "renting"},
     {"path": "tenancy-deposit-protection", "category": "renting"},
     {"path": "government/publications/how-to-rent", "category": "renting"},
 
@@ -30,6 +29,6 @@ SOURCES = [
     {"path": "apply-council-tax-reduction", "category": "council_tax"},
 
     # --- Healthcare (GOV.UK side; NHS pages come later) ---
-    {"path": "register-with-a-gp", "category": "healthcare"},
+    {"path": "guidance/nhs-entitlements-migrant-health-guide", "category": "healthcare"},
     {"path": "healthcare-immigration-application", "category": "healthcare"},
 ]

@@ -1,0 +1,7 @@
+{
+  "name": "UKNest AI",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": { "ghcr.io/devcontainers/features/docker-in-docker:2": {} },
+  "forwardPorts": [6333, 8501],
+  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt && cp -n .env.example .env"
+}

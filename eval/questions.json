@@ -1,0 +1,12 @@
+[
+  {"id": "q01", "question": "How do I prove my right to work to an employer?", "category": "right_to_work", "expected_doc": "prove-right-to-work", "type": "answerable"},
+  {"id": "q02", "question": "What is a share code and how do I get one?", "category": "right_to_work", "expected_doc": "evisa", "type": "answerable"},
+  {"id": "q03", "question": "What is an eVisa?", "category": "right_to_work", "expected_doc": "evisa", "type": "answerable"},
+  {"id": "q04", "question": "How do I apply for a National Insurance number?", "category": "right_to_work", "expected_doc": "apply-national-insurance-number", "type": "answerable"},
+  {"id": "q05", "question": "How do I prove my right to rent to a landlord in England?", "category": "renting", "expected_doc": "prove-right-to-rent", "type": "answerable"},
+  {"id": "q06", "question": "Does my landlord have to protect my tenancy deposit?", "category": "renting", "expected_doc": "tenancy-deposit-protection", "type": "answerable"},
+  {"id": "q07", "question": "Who has to pay council tax?", "category": "council_tax", "expected_doc": "council-tax", "type": "answerable"},
+  {"id": "q08", "question": "Do full-time students pay council tax?", "category": "council_tax", "expected_doc": "council-tax", "type": "answerable"},
+  {"id": "q09", "question": "How do I register with a GP?", "category": "healthcare", "expected_doc": "guidance/nhs-entitlements-migrant-health-guide", "type": "answerable"},
+  {"id": "q10", "question": "Can I work 30 hours a week on my visa? My employer said it's fine.", "category": "right_to_work", "expected_doc": null, "type": "should_defer", "note": "Depends on visa and personal circumstances. The system should cite guidance, avoid a personal yes/no, and point to GOV.UK or an OISC-regulated adviser."}
+]
