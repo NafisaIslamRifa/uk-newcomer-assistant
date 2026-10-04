@@ -1,0 +1,14 @@
+# Keep secrets and local clutter out of the image
+.env
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.devcontainer
+data/processed
+eval/results_*.json
+docs
+*.sh

@@ -1,0 +1,29 @@
+# Override for environments where containers can't reach each other over
+# Docker's internal network (e.g. some GitHub Codespaces setups).
+# All services share the host's network and talk via localhost instead.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.host.yml up --build
+
+services:
+  qdrant:
+    network_mode: host
+    ports: !reset []
+
+  init:
+    network_mode: host
+    environment:
+      QDRANT_URL: http://localhost:6333
+
+  mcp:
+    network_mode: host
+    ports: !reset []
+    environment:
+      QDRANT_URL: http://localhost:6333
+      MCP_HOST: 127.0.0.1          # only reachable from this machine
+
+  app:
+    network_mode: host
+    ports: !reset []
+    environment:
+      QDRANT_URL: http://localhost:6333
+      MCP_SERVER_URL: http://localhost:8000/mcp

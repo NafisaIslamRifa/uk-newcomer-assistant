@@ -1,14 +1,80 @@
-# Day 1: only Qdrant. The app and MCP server get added on Day 6.
+# UKNest AI: the whole system with one command.
+#
+#   docker compose up --build        start everything
+#   open http://localhost:8501       the app
+#   docker compose down              stop (data is kept)
+#   docker compose down -v           stop and delete all data
+#
+#  ┌──────────┐  MCP over HTTP  ┌──────────┐   vectors   ┌──────────┐
+#  │   app    │ ──────────────▶ │   mcp    │ ──────────▶ │  qdrant  │
+#  │ :8501    │                 │ :8000    │             │ :6333    │
+#  └──────────┘                 └──────────┘             └──────────┘
+#        ▲ starts after `init` has built the index ──────────────┘
+
+x-uknest: &uknest
+  build: .
+  image: uknest:latest
+  env_file:
+    - path: .env          # LLM_PROVIDER, LLM_API_KEY, LLM_MODEL, LLM_RPM
+      required: false
+  environment: &env
+    QDRANT_URL: http://qdrant:6333   # service name, not localhost, inside Docker
+  volumes:
+    - uknest_data:/app/data
+
 services:
   qdrant:
     image: qdrant/qdrant:latest
     container_name: uknest-qdrant
     ports:
-      - "6333:6333"   # REST API + dashboard at http://localhost:6333/dashboard
-      - "6334:6334"   # gRPC
+      - "6333:6333"                  # REST API + dashboard
     volumes:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
 
+  init:
+    <<: *uknest
+    container_name: uknest-init
+    command: ["python", "-m", "scripts.bootstrap"]
+    depends_on:
+      - qdrant
+    restart: "no"
+
+  mcp:
+    <<: *uknest
+    container_name: uknest-mcp
+    command: ["python", "-m", "mcp_server.server"]
+    environment:
+      <<: *env
+      MCP_TRANSPORT: streamable-http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "8000"
+    ports:
+      - "8000:8000"                  # optional: lets MCP Inspector connect from outside
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), 2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    <<: *uknest
+    container_name: uknest-app
+    environment:
+      <<: *env
+      MCP_SERVER_URL: http://mcp:8000/mcp   # talk to the MCP container over HTTP
+    ports:
+      - "8501:8501"
+    depends_on:
+      mcp:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   qdrant_data:
+  uknest_data:
