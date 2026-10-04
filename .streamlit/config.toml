@@ -1,0 +1,14 @@
+[theme]
+base = "light"
+primaryColor = "#0f766e"
+font = "Atkinson Hyperlegible:https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap"
+textColor = "#17302b"
+
+[theme.sidebar]
+backgroundColor = "#eef4f2"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
