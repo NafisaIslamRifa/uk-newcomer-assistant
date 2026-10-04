@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 data/processed/
+eval/results_agent.json

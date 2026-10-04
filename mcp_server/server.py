@@ -113,6 +113,10 @@ def find_nearby_services(postcode: str, service_type: ServiceType,
 def main() -> None:
     transport = os.getenv("MCP_TRANSPORT", "stdio")
     log.info("Starting UKNest MCP server (transport=%s)", transport)
+    # Load the embedding model now, so the first question isn't slow
+    from rag.embeddings import get_model
+    get_model()
+    log.info("Embedding model loaded")
     mcp.run(transport=transport)
 
 

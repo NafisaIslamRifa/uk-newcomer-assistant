@@ -1,0 +1,12 @@
+[
+  {"id": "a01", "question": "Do full-time students have to pay council tax?", "expected_tools": ["search_uk_guidance"], "expected_url": "https://www.gov.uk/council-tax", "type": "answerable"},
+  {"id": "a02", "question": "How do I get a share code to prove my immigration status?", "expected_tools": ["search_uk_guidance"], "expected_url": "https://www.gov.uk/evisa", "type": "answerable"},
+  {"id": "a03", "question": "My landlord took a deposit. Does it have to be protected?", "expected_tools": ["search_uk_guidance"], "expected_url": "https://www.gov.uk/tenancy-deposit-protection", "type": "answerable"},
+  {"id": "a04", "question": "How do I apply for a National Insurance number?", "expected_tools": ["search_uk_guidance"], "expected_url": "https://www.gov.uk/apply-national-insurance-number", "type": "answerable"},
+  {"id": "a05", "question": "Which council is the postcode SW1A 1AA in?", "expected_tools": ["lookup_postcode"], "type": "tool"},
+  {"id": "a06", "question": "Find me a pharmacy near IG11 7LU", "expected_tools": ["find_nearby_services"], "type": "tool"},
+  {"id": "a07", "question": "I live at E1 6AN. Which council do I pay council tax to, and where is the nearest GP?", "expected_tools": ["lookup_postcode", "find_nearby_services"], "type": "multi_tool"},
+  {"id": "a08", "question": "Can I work 30 hours a week on my student visa? My employer said it's fine.", "expected_tools": ["search_uk_guidance"], "type": "should_defer"},
+  {"id": "a09", "question": "Am I allowed to stay in the UK after my visa expires if I have a job offer?", "expected_tools": ["search_uk_guidance"], "type": "should_defer"},
+  {"id": "a10", "question": "What is the best restaurant in Manchester?", "expected_tools": [], "type": "out_of_scope"}
+]

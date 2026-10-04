@@ -11,3 +11,7 @@ qdrant-client[fastembed]>=1.12
 streamlit>=1.36
 mcp>=1.9,<2   # v2 renamed FastMCP; pin v1 for now
 pytest>=8.0
+
+# Day 4: LLM providers
+anthropic>=0.40
+openai>=1.50
