@@ -14,14 +14,11 @@ import uuid
 from qdrant_client import QdrantClient, models
 
 from rag.chunking import build_chunks
-from rag.config import COLLECTION, QDRANT_URL
+from rag.config import COLLECTION
 from rag.embeddings import embed_passages
+from rag.store import get_client
 
 BATCH_SIZE = 64
-
-
-def get_client() -> QdrantClient:
-    return QdrantClient(url=QDRANT_URL)
 
 
 def build_index(client: QdrantClient | None = None, embed=embed_passages) -> int:

@@ -6,3 +6,4 @@ __pycache__/
 .DS_Store
 data/processed/
 eval/results_agent.json
+data/qdrant_local/

@@ -77,3 +77,14 @@ def test_helpers():
     line = ui.describe_tool_call({"tool": "find_nearby_services",
                                   "args": {"service_type": "post_office", "postcode": "E1 6AN"}})
     assert "post office" in line and "E1 6AN" in line
+
+
+def test_demo_question_limit(monkeypatch):
+    monkeypatch.setattr(app.runner, "AgentRunner", FakeRunner)
+    monkeypatch.setenv("DEMO_MAX_QUESTIONS", "1")
+    t = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app" / "streamlit_app.py"),
+                          default_timeout=30)
+    t.run()
+    t.chat_input[0].set_value("First question").run()
+    assert t.chat_input[0].disabled
+    assert any("1 questions per visit" in i.value for i in t.info)

@@ -21,7 +21,7 @@ from pathlib import Path
 
 from qdrant_client import QdrantClient
 
-from rag.config import COLLECTION, QDRANT_URL, RAW_DOCS_PATH
+from rag.config import COLLECTION, QDRANT_PATH, QDRANT_URL, RAW_DOCS_PATH
 
 
 def wait_for_qdrant(url: str, attempts: int = 30, delay: float = 2.0) -> QdrantClient:
@@ -44,7 +44,12 @@ def index_is_ready(client: QdrantClient) -> bool:
 
 
 def main(client: QdrantClient | None = None, fetch=None, build=None) -> str:
-    client = client or wait_for_qdrant(QDRANT_URL)
+    if client is None:
+        if QDRANT_PATH:  # embedded mode: nothing to wait for
+            from rag.store import get_client
+            client = get_client()
+        else:
+            client = wait_for_qdrant(QDRANT_URL)
     force = os.getenv("FORCE_REINDEX", "").lower() in ("1", "true", "yes")
 
     if index_is_ready(client) and not force:

@@ -14,9 +14,24 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import os  # noqa: E402
+
 import streamlit as st  # noqa: E402
 
 from app import ui_helpers as ui  # noqa: E402
+
+# On Streamlit Community Cloud, settings live in "Secrets". Copy them into the
+# environment before the agent is imported, because all modules read os.environ.
+try:
+    for _key, _value in st.secrets.items():
+        if isinstance(_value, (str, int, float, bool)):
+            os.environ.setdefault(_key, str(_value))
+except Exception:  # no secrets file locally: .env is used instead
+    pass
+
+# Public demo safeguard: limit questions per visitor so one person can't use up
+# the free LLM quota. 0 = no limit (default for local use).
+MAX_QUESTIONS = int(os.getenv("DEMO_MAX_QUESTIONS", "0") or 0)
 
 st.set_page_config(page_title="UKNest", page_icon=":material/home:", layout="centered")
 
@@ -160,8 +175,14 @@ if not st.session_state.messages and not pending:
         cols[i % 3].button(label, use_container_width=True, on_click=st.session_state.update,
                            kwargs={"pending_question": q})
 
-typed = st.chat_input("Ask a question about living in the UK")
-question = typed or pending
+asked = sum(m["role"] == "user" for m in st.session_state.messages)
+limit_reached = bool(MAX_QUESTIONS) and asked >= MAX_QUESTIONS
+if limit_reached:
+    st.info(f"This public demo allows {MAX_QUESTIONS} questions per visit, to keep it free "
+            "for everyone. To keep exploring, run UKNest yourself from the GitHub repository.")
+
+typed = st.chat_input("Ask a question about living in the UK", disabled=limit_reached)
+question = None if limit_reached else (typed or pending)
 
 if question:
     st.session_state.messages.append({"role": "user", "content": question})
@@ -186,3 +207,5 @@ if question:
                 st.session_state.pop("chat", None)  # start a clean conversation next time
         render_assistant(msg)
     st.session_state.messages.append(msg)
+    if MAX_QUESTIONS and asked + 1 >= MAX_QUESTIONS:
+        st.rerun()  # redraw with the input disabled and the limit message shown

@@ -117,6 +117,15 @@ def main() -> None:
     from rag.embeddings import get_model
     get_model()
     log.info("Embedding model loaded")
+    if os.getenv("QDRANT_PATH"):
+        # Embedded Qdrant (public demo): only this process can open the data folder,
+        # so the server builds the index itself the first time it starts.
+        # Progress messages go to stderr: stdout carries the MCP protocol.
+        import contextlib
+        from scripts.bootstrap import main as ensure_index
+        with contextlib.redirect_stdout(sys.stderr):
+            status = ensure_index()
+        log.info("Embedded Qdrant: %s", status)
     mcp.run(transport=transport)
 
 

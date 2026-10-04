@@ -10,17 +10,9 @@ import sys
 
 from qdrant_client import QdrantClient, models
 
-from rag.config import COLLECTION, QDRANT_URL
+from rag.config import COLLECTION
 from rag.embeddings import embed_query
-
-_client: QdrantClient | None = None
-
-
-def _get_client() -> QdrantClient:
-    global _client
-    if _client is None:
-        _client = QdrantClient(url=QDRANT_URL)
-    return _client
+from rag.store import get_client as _get_client
 
 
 def retrieve(question: str, k: int = 5, category: str | None = None,

@@ -35,8 +35,11 @@ class MCPToolbox:
             read, write, _ = await self._stack.enter_async_context(
                 streamablehttp_client(self.server_url))
         else:
+            # Pass our environment on: hosts like Streamlit Cloud provide settings as
+            # environment variables, and the SDK only forwards a few by default.
             params = StdioServerParameters(command=sys.executable,
-                                           args=["-m", "mcp_server.server"])
+                                           args=["-m", "mcp_server.server"],
+                                           env=dict(os.environ))
             read, write = await self._stack.enter_async_context(stdio_client(params))
         self.session = await self._stack.enter_async_context(ClientSession(read, write))
         await self.session.initialize()
