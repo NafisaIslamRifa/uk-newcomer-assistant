@@ -23,8 +23,13 @@ def get_model() -> TextEmbedding:
                          cache_dir=os.getenv("FASTEMBED_CACHE_PATH") or None)
 
 
+# Chunks embedded per batch. fastembed's default (256) needs several GB of RAM for long
+# chunks, which crashes small hosts like Streamlit Community Cloud; 16 stays well under 500 MB.
+BATCH_SIZE = int(os.getenv("EMBED_BATCH_SIZE", "16"))
+
+
 def embed_passages(texts: list[str]) -> list[list[float]]:
-    return [v.tolist() for v in get_model().passage_embed(texts)]
+    return [v.tolist() for v in get_model().passage_embed(texts, batch_size=BATCH_SIZE)]
 
 
 def embed_query(text: str) -> list[float]:

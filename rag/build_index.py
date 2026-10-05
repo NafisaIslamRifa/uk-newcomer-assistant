@@ -59,3 +59,4 @@ def build_index(client: QdrantClient | None = None, embed=embed_passages) -> int
 
 if __name__ == "__main__":
     build_index()
+    get_client().close()  # flush and release the embedded database cleanly
