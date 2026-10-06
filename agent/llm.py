@@ -36,6 +36,9 @@ DEFAULT_MODELS = {
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 MAX_TOKENS = 1500
 MAX_RETRIES = 4
+# Each LLM request gives up after this many seconds. The SDK default is 10 minutes,
+# which would leave the user staring at a spinner when the provider is slow.
+REQUEST_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "45"))
 
 
 # ------------------------------------------------------- rate limits + retries
@@ -75,6 +78,16 @@ def _is_rate_limit(exc: Exception) -> bool:
     return type(exc).__name__ == "RateLimitError" or getattr(exc, "status_code", None) == 429
 
 
+TRANSIENT_ERRORS = {"InternalServerError", "APITimeoutError", "APIConnectionError",
+                    "ServiceUnavailableError", "OverloadedError"}
+
+
+def _is_transient(exc: Exception) -> bool:
+    """Temporary provider-side problems worth a quick retry (5xx, timeouts, network)."""
+    status = getattr(exc, "status_code", None)
+    return type(exc).__name__ in TRANSIENT_ERRORS or (isinstance(status, int) and status >= 500)
+
+
 def call_with_retry(fn):
     """Run one LLM request with pacing, retrying on rate-limit errors."""
     for attempt in range(MAX_RETRIES + 1):
@@ -82,11 +95,16 @@ def call_with_retry(fn):
         try:
             return fn()
         except Exception as exc:
-            if not _is_rate_limit(exc) or attempt == MAX_RETRIES:
+            if _is_rate_limit(exc) and attempt < MAX_RETRIES:
+                delay = _retry_delay(exc, attempt)
+                reason = "rate limited"
+            elif _is_transient(exc) and attempt < 2:   # at most 2 quick retries
+                delay = 3 * (attempt + 1)
+                reason = f"provider error ({type(exc).__name__})"
+            else:
                 raise
-            delay = _retry_delay(exc, attempt)
-            print(f"  ⏳ rate limited, retrying in {delay:.0f}s "
-                  f"(attempt {attempt + 1}/{MAX_RETRIES})...", file=sys.stderr)
+            print(f"  ⏳ {reason}, retrying in {delay:.0f}s "
+                  f"(attempt {attempt + 1})...", file=sys.stderr)
             time.sleep(delay)
 
 
@@ -108,7 +126,7 @@ class Reply:
 class AnthropicChat:
     def __init__(self, system: str, model: str, api_key: str):
         import anthropic
-        self.client = anthropic.Anthropic(api_key=api_key)
+        self.client = anthropic.Anthropic(api_key=api_key, timeout=REQUEST_TIMEOUT, max_retries=0)
         self.model, self.system = model, system
         self.messages: list[dict] = []
 
@@ -165,7 +183,8 @@ def _simplify_schema(schema: dict) -> dict:
 class OpenAICompatChat:
     def __init__(self, system: str, model: str, api_key: str, base_url: str | None = None):
         import openai
-        self.client = openai.OpenAI(api_key=api_key, base_url=base_url)
+        self.client = openai.OpenAI(api_key=api_key, base_url=base_url,
+                                    timeout=REQUEST_TIMEOUT, max_retries=0)
         self.model = model
         self.messages: list[dict] = [{"role": "system", "content": system}]
 
