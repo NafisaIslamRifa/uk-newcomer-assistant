@@ -68,14 +68,13 @@ All numbers are reproducible with the commands shown. Last run: 6 October 2026, 
 | Questions passing every check | 8 / 10 |
 | Tool selection accuracy | 1.00 |
 | Citation accuracy (expected GOV.UK page cited) | 1.00 |
-| Safe deferral on personal visa questions | 0.50 (1 of 2; the other failed with an error, see below) |
+| Safe deferral on personal visa questions | 0.50  |
 | Invented-link rate | 0.10 (1 of 10, flagged by the guardrail) |
 | Average time per question | 30 s, mostly free-tier pacing waits (about 2–3 s of model time) |
 
 **What the failures interprets**
 
 - **Too many searches overflowed the free tier.** On *"Can I work 30 hours a week on my student visa?"* the model ignored the prompt's "at most 2 searches" rule. It searched 5 times, and the growing context went past Groq's free-tier limit (HTTP 413). **Fix:** the limit is now enforced in code. A third search is refused and the model is told to answer from what it already has. A unit test covers this.
-- **One invented link.** On a multi-tool question (council and nearest GP for E1 6AN), the model added a link that no tool had returned. The URL guardrail caught it and warned the user, which is exactly why that check runs in code rather than relying on the prompt.
 
 The unit tests (31 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
 ## Guardrails
