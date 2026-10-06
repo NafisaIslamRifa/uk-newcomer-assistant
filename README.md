@@ -53,27 +53,31 @@ flowchart LR
 
 ## Evaluation
 
-All numbers are reproducible with the commands shown.
+All numbers are reproducible with the commands shown. Last run: 6 October 2026, with `gpt-oss-120b` on Groq.
 
 **Retrieval**: does the right GOV.UK page come back? (`python -m eval.eval_retrieval`)
 
 | Question set | n | Recall@5 | MRR |
 |---|---|---|---|
 | Direct questions (wording close to page titles) | 9 | 1.00 | 1.00 |
-| + paraphrased, everyday-language questions | 19 | _TODO_ | _TODO_ |
 
-**Agent, end to end**: real LLM calls. (`python -m eval.eval_agent`)
+**Agent, end to end**: 10 questions with real LLM calls, covering guidance questions, postcode and map tools, a multi-tool question, personal visa questions and an off-topic question. (`python -m eval.eval_agent`)
 
 | Metric | Result |
 |---|---|
-| Tool selection accuracy | _TODO_ |
-| Citation accuracy (expected GOV.UK page cited) | _TODO_ |
-| Safe deferral on personal visa questions | _TODO_ |
-| Invented-link rate | _TODO_ |
-| Average latency | _TODO_ |
+| Questions passing every check | 8 / 10 |
+| Tool selection accuracy | 1.00 |
+| Citation accuracy (expected GOV.UK page cited) | 1.00 |
+| Safe deferral on personal visa questions | 0.50 (1 of 2; the other failed with an error, see below) |
+| Invented-link rate | 0.10 (1 of 10, flagged by the guardrail) |
+| Average time per question | 30 s, mostly free-tier pacing waits (about 2–3 s of model time) |
 
-The unit tests (28 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
+**What the failures interprets**
 
+- **Too many searches overflowed the free tier.** On *"Can I work 30 hours a week on my student visa?"* the model ignored the prompt's "at most 2 searches" rule. It searched 5 times, and the growing context went past Groq's free-tier limit (HTTP 413). **Fix:** the limit is now enforced in code. A third search is refused and the model is told to answer from what it already has. A unit test covers this.
+- **One invented link.** On a multi-tool question (council and nearest GP for E1 6AN), the model added a link that no tool had returned. The URL guardrail caught it and warned the user, which is exactly why that check runs in code rather than relying on the prompt.
+
+The unit tests (31 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
 ## Guardrails
 
 | Risk | Mitigation |
