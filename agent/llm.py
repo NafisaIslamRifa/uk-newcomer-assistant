@@ -198,6 +198,12 @@ class OpenAICompatChat:
                 "name": t["name"], "description": t["description"],
                 "parameters": _simplify_schema(t["input_schema"])}} for t in tools],
         ))
+        if isinstance(resp, str):
+            # The SDK returns raw text when the server's reply isn't JSON, which almost
+            # always means LLM_BASE_URL points at a web page rather than the API.
+            raise RuntimeError(
+                f"The LLM endpoint did not return JSON. Check LLM_BASE_URL "
+                f"(now {self.client.base_url}). Reply started: {resp[:200]!r}")
         msg = resp.choices[0].message
         self.messages.append(msg.model_dump(exclude_none=True))
         calls = []

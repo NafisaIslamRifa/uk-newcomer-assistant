@@ -92,7 +92,7 @@ The unit tests (28 of them) run on every push with no API keys or network access
 | Embeddings | `bge-small-en-v1.5` via fastembed | Strong small model, runs on CPU, no PyTorch |
 | Vector DB | Qdrant | Payload filtering by topic; runs as a server, in the cloud or embedded |
 | Tools | MCP (Python SDK, FastMCP) | A standard tool interface; stdio locally, HTTP in Docker |
-| LLM | Gemini Flash (free tier); Anthropic and OpenAI adapters included | Provider-agnostic: switch with one environment variable |
+| LLM | gpt-oss-120b on Groq (free tier); Anthropic, OpenAI and Gemini adapters included | Provider-agnostic: switching providers is a configuration change |
 | UI | Streamlit | Chat UI with sources and a step-by-step trace |
 | Ops | Docker Compose, GitHub Actions | One-command start-up; tests and image build on every push |
 
@@ -100,7 +100,7 @@ The unit tests (28 of them) run on every push with no API keys or network access
 
 ### Option 1: GitHub Codespaces (nothing to install)
 1. **Code → Codespaces → Create codespace**.
-2. `cp .env.example .env` and add your `LLM_API_KEY` ([free Gemini key](https://aistudio.google.com)).
+2. `cp .env.example .env` and add your `LLM_API_KEY` ([free Groq key](https://console.groq.com)).
 3. Start everything:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.host.yml up --build
@@ -135,9 +135,10 @@ python -m agent.cli                   # or chat in the terminal
 ### Configuration (`.env`)
 | Variable | Purpose |
 |---|---|
-| `LLM_PROVIDER` | `gemini`, `anthropic` or `openai` |
+| `LLM_PROVIDER` | `openai` (any OpenAI-compatible API, e.g. Groq), `anthropic` or `gemini` |
+| `LLM_BASE_URL` | API address for OpenAI-compatible providers, e.g. `https://api.groq.com/openai/v1` |
 | `LLM_API_KEY`, `LLM_MODEL` | Key and (optional) model name |
-| `LLM_RPM` | Max LLM requests per minute (Gemini free tier: 5) |
+| `LLM_RPM` | Max LLM requests per minute (4 suits Groq's free tier) |
 | `QDRANT_URL` / `QDRANT_API_KEY` | Qdrant server or Qdrant Cloud |
 | `QDRANT_PATH` | Embedded Qdrant in a local folder (no server) |
 | `DEMO_MAX_QUESTIONS` | Per-visitor limit for a public demo (0 = none) |
@@ -149,14 +150,15 @@ The demo runs as a single app: the MCP server starts as a subprocess, and Qdrant
 1. [share.streamlit.io](https://share.streamlit.io) → **Create app** → this repo, branch `main`, file `app/streamlit_app.py`. Under **Advanced settings**, choose **Python 3.12**.
 2. In **Secrets**, add:
    ```toml
-   LLM_PROVIDER = "gemini"
+   LLM_PROVIDER = "openai"
+   LLM_BASE_URL = "https://api.groq.com/openai/v1"
+   LLM_MODEL = "openai/gpt-oss-120b"
    LLM_API_KEY = "your-key"
-   LLM_MODEL = "gemini-3.8-flash"
-   LLM_RPM = "5"
-   QDRANT_PATH = "data/qdrant_local"
-   DEMO_MAX_QUESTIONS = "8"
+   LLM_RPM = "4"
+   QDRANT_PATH = "data/qdrant_demo"
+   DEMO_MAX_QUESTIONS = "3"
    ```
-3. Deploy. The first load takes about a minute while the index is built.
+3. Deploy. The prebuilt index in `data/qdrant_demo` loads on start-up, so no build step is needed.
 
 ## Project structure
 
@@ -177,7 +179,7 @@ tests/        28 unit tests (fake LLM, in-memory Qdrant, no network)
 - **Section-aware chunking.** A chunk never spans two GOV.UK sections, so each citation points to a precise heading.
 - **MCP between the agent and its tools.** The same server runs over stdio locally and over HTTP in Docker. Only one environment variable changes.
 - **Guardrails in code, not just the prompt.** Prompts guide the model, and code checks enforce the rules every time.
-- **Provider-agnostic LLM layer.** A model retirement or a provider switch is a configuration change, not a code change.
+- **Provider-agnostic LLM layer.** A model retirement or a provider switch is a configuration change, not a code change. When Gemini's free tier dropped to 20 requests a day, the demo moved to Groq without touching the code.
 
 ## Limitations and next steps
 

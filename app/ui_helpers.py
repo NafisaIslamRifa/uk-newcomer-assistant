@@ -77,6 +77,10 @@ def friendly_error(exc: Exception) -> str:
         return "The AI service rejected the API key. Check `LLM_API_KEY` in `.env`."
     if name == "NotFoundError":
         return "The AI model wasn't found. Check `LLM_MODEL` in `.env`."
+    if name in ("InternalServerError", "ServiceUnavailableError", "OverloadedError",
+                "APITimeoutError", "APIConnectionError"):
+        return ("The AI service is having a temporary problem on its side. "
+                "Please try again in a minute.")
     if name == "TimeoutError":
         return "That took too long to answer. Please try again."
     return f"Something went wrong ({name}). Please try again."
