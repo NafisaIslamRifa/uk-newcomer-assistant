@@ -4,7 +4,7 @@
 
 **An AI assistant that answers everyday questions about settling in the UK, using only official GOV.UK guidance, and shows its sources for every answer.**
 
-**[Live demo](https://YOUR-APP.streamlit.app)** · built with RAG, an MCP tool server, an LLM agent with guardrails, Streamlit and Docker.
+**[Live demo](https://https://uk-newcomer-assistant-uknest-ai.streamlit.app/)** · built with RAG, an MCP tool server, an LLM agent with guardrails, Streamlit and Docker.
 
 ![UKNest answering a council tax question with sources](docs/screenshot-answer.png)
 
