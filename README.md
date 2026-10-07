@@ -6,7 +6,7 @@
 
 **[Live demo](https://uk-newcomer-assistant-uknest-ai.streamlit.app/)** · built with RAG, an MCP tool server, an LLM agent with guardrails, Streamlit and Docker.
 
-![UKNest answering a council tax question with sources](docs/screenshot-answer.png)
+![UKNest answering a council tax question with sources]<img width="1434" height="695" alt="Screenshot 2026-10-07 at 7 48 52 AM" src="https://github.com/user-attachments/assets/1b9f72e4-612e-442b-b1c2-e0fcc93876b8" />
 
 > General information, not legal or immigration advice. For your own situation, speak to an [OISC-regulated adviser](https://www.gov.uk/find-an-immigration-adviser) or [Citizens Advice](https://www.citizensadvice.org.uk/).
 
