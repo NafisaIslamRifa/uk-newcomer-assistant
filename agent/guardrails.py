@@ -28,7 +28,10 @@ REFERRAL_FOOTER = (
     "[Citizens Advice](https://www.citizensadvice.org.uk/).*"
 )
 
-URL_RE = re.compile(r"https?://[^\s)\]>\"']+")
+URL_RE = re.compile(r"https?://[^\s)\]>\"'【】]+")
+# gpt-oss sometimes writes its internal citation format, e.g. 【1†url】 or 【3†L10-L20】.
+# These are meaningless to users, so they are removed before the answer is shown.
+MARKER_RE = re.compile(r"[ \t]*【[^】]*】")
 
 
 def is_high_risk(question: str) -> bool:
@@ -57,6 +60,7 @@ ALWAYS_ALLOWED = {
 
 def check_answer(answer: str, question: str, allowed_urls: set[str]) -> dict:
     """Return the (possibly amended) answer plus a report of what was checked."""
+    answer, markers = MARKER_RE.subn("", answer)
     cited = extract_urls(answer)
     allowed = allowed_urls | ALWAYS_ALLOWED
     unsupported = sorted(u for u in cited if u not in allowed)
@@ -66,6 +70,7 @@ def check_answer(answer: str, question: str, allowed_urls: set[str]) -> dict:
         "cited_urls": sorted(cited),
         "unsupported_urls": unsupported,
         "referral_added": False,
+        "markers_removed": markers,
     }
 
     if unsupported:

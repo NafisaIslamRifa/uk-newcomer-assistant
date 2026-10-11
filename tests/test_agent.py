@@ -99,3 +99,13 @@ def test_simplify_schema_removes_optional_wrapper():
     out = _simplify_schema(s)
     assert out["properties"]["c"] == {"enum": ["a"], "type": "string"}
     assert "title" not in out
+
+
+def test_check_answer_strips_model_citation_markers():
+    text = ("They cannot refuse you without proof of address 【1†url】. "
+            "See [Register with a GP](https://www.gov.uk/register-gp-surgery)【3†L4-L9】.")
+    out = check_answer(text, "how do I register with a GP",
+                       {"https://www.gov.uk/register-gp-surgery"})
+    assert "【" not in out["answer"] and "†" not in out["answer"]
+    assert out["report"]["markers_removed"] == 2
+    assert out["report"]["unsupported_urls"] == []
