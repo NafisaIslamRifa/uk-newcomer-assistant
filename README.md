@@ -78,7 +78,7 @@ All numbers are reproducible with the commands shown. Last run: 6 October 2026, 
 
 - **Too many searches overflowed the free tier.** On *"Can I work 30 hours a week on my student visa?"* the model ignored the prompt's "at most 2 searches" rule. It searched 5 times, and the growing context went past Groq's free-tier limit (HTTP 413). **Fix:** the limit is now enforced in code. A third search is refused and the model is told to answer from what it already has. A unit test covers this.
 
-The unit tests (30 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
+The unit tests (31 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
 
 ## Guardrails
 
@@ -186,7 +186,7 @@ agent/        LLM adapters, agent loop, system prompt, guardrails, CLI
 app/          Streamlit UI and the background agent runner
 eval/         question sets and retrieval / agent evaluation scripts
 scripts/      start-up job that builds the index when needed
-tests/        30 unit tests (fake LLM, in-memory Qdrant, no network)
+tests/        31 unit tests (fake LLM, in-memory Qdrant, no network)
 ```
 
 ## Design decisions
