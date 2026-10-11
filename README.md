@@ -6,9 +6,9 @@
 
 **[Live demo](https://uk-newcomer-assistant-uknest-ai.streamlit.app/)** · built with RAG, an MCP tool server, an LLM agent with guardrails, Streamlit and Docker.
 
-**Docker image:** `docker pull nafisarifa/uknest` · run the full stack (app + MCP server + Qdrant) with `docker compose up`
+**Docker image:** [`nafisarifa/uknest`](https://hub.docker.com/r/nafisarifa/uknest), published by CI on every push to `main`. Run the full stack (app + MCP server + Qdrant) without building: see [Option 1](#option-1-prebuilt-image-from-docker-hub-fastest).
 
-![UKNest answering a council tax question with sources]<img width="1434" height="695" alt="Screenshot 2026-10-07 at 7 48 52 AM" src="https://github.com/user-attachments/assets/1b9f72e4-612e-442b-b1c2-e0fcc93876b8" />
+<img width="1434" alt="UKNest answering a council tax question with sources" src="https://github.com/user-attachments/assets/1b9f72e4-612e-442b-b1c2-e0fcc93876b8" />
 
 > General information, not legal or immigration advice. For your own situation, speak to an [OISC-regulated adviser](https://www.gov.uk/find-an-immigration-adviser) or [Citizens Advice](https://www.citizensadvice.org.uk/).
 
@@ -74,11 +74,12 @@ All numbers are reproducible with the commands shown. Last run: 6 October 2026, 
 | Invented-link rate | 0.10 (1 of 10, flagged by the guardrail) |
 | Average time per question | 30 s, mostly free-tier pacing waits (about 2–3 s of model time) |
 
-**What the failures interprets**
+**What the failures showed**
 
 - **Too many searches overflowed the free tier.** On *"Can I work 30 hours a week on my student visa?"* the model ignored the prompt's "at most 2 searches" rule. It searched 5 times, and the growing context went past Groq's free-tier limit (HTTP 413). **Fix:** the limit is now enforced in code. A third search is refused and the model is told to answer from what it already has. A unit test covers this.
 
-The unit tests (31 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
+The unit tests (30 of them) run on every push with no API keys or network access, using a scripted fake LLM and in-memory Qdrant.
+
 ## Guardrails
 
 | Risk | Mitigation |
@@ -99,11 +100,21 @@ The unit tests (31 of them) run on every push with no API keys or network access
 | Tools | MCP (Python SDK, FastMCP) | A standard tool interface; stdio locally, HTTP in Docker |
 | LLM | gpt-oss-120b on Groq (free tier); Anthropic, OpenAI and Gemini adapters included | Provider-agnostic: switching providers is a configuration change |
 | UI | Streamlit | Chat UI with sources and a step-by-step trace |
-| Ops | Docker Compose, GitHub Actions | One-command start-up; tests and image build on every push |
+| Ops | Docker Compose, GitHub Actions, Docker Hub | One-command start-up; tests, image build and publish to Docker Hub on every push to `main` |
 
 ## Run it
 
-### Option 1: GitHub Codespaces (nothing to install)
+### Option 1: Prebuilt image from Docker Hub (fastest)
+```bash
+git clone https://github.com/NafisaIslamRifa/uk-newcomer-assistant
+cd uk-newcomer-assistant
+cp .env.example .env          # add LLM_API_KEY (free Groq key: console.groq.com)
+docker compose pull           # downloads nafisarifa/uknest and Qdrant, no build
+docker compose up             # then open http://localhost:8501
+```
+The image contains no API keys: `.env` is excluded by `.dockerignore`, and each user supplies their own key at run time.
+
+### Option 2: GitHub Codespaces (nothing to install)
 1. **Code → Codespaces → Create codespace**.
 2. `cp .env.example .env` and add your `LLM_API_KEY` ([free Groq key](https://console.groq.com)).
 3. Start everything:
@@ -114,7 +125,7 @@ The unit tests (31 of them) run on every push with no API keys or network access
 
 > Codespaces' Docker-in-Docker can block traffic between containers. `docker-compose.host.yml` switches to host networking. On a normal machine, plain `docker compose up --build` works.
 
-### Option 2: Docker on your own machine
+### Option 3: Build the image yourself
 ```bash
 cp .env.example .env          # add LLM_API_KEY
 docker compose up --build     # then open http://localhost:8501
@@ -127,7 +138,7 @@ docker compose up --build     # then open http://localhost:8501
 | `mcp` | MCP tool server over HTTP | 8000 |
 | `app` | Streamlit UI | 8501 |
 
-### Option 3: Python only
+### Option 4: Python only
 ```bash
 pip install -r requirements.txt
 docker compose up -d qdrant
@@ -175,7 +186,7 @@ agent/        LLM adapters, agent loop, system prompt, guardrails, CLI
 app/          Streamlit UI and the background agent runner
 eval/         question sets and retrieval / agent evaluation scripts
 scripts/      start-up job that builds the index when needed
-tests/        28 unit tests (fake LLM, in-memory Qdrant, no network)
+tests/        30 unit tests (fake LLM, in-memory Qdrant, no network)
 ```
 
 ## Design decisions
