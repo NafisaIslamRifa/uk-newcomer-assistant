@@ -23,6 +23,7 @@ jobs:
   docker:
     name: Docker build
     runs-on: ubuntu-latest
+    needs: tests
     steps:
       - uses: actions/checkout@v4
       - name: Validate compose files
@@ -31,3 +32,24 @@ jobs:
           docker compose -f docker-compose.yml -f docker-compose.host.yml config --quiet
       - name: Build image
         run: docker build -t uknest:ci .
+
+  publish:
+    name: Publish to Docker Hub
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/uknest:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/uknest:${{ github.sha }}
